@@ -14,23 +14,45 @@ const setAvailability = async (req, res) => {
   }
 
   try {
-    const updatedUser = await user.findByIdAndUpdate(
-      req.user._id,
-      { availability },
-      { new: true }
-    );
-
-    if (!updatedUser) {
+    const userData = await user.findById(req.user._id);
+    if (!userData) {
       return res.status(404).json({ message: "User not found" });
     }
-
+    const newAvailability = availability.map((date) => {
+      const parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) {
+        throw new Error("Invalid date format");
+      }
+      return parsedDate;
+    });
+    const existingDates = userData.availability.map(
+      (date) => date.toISOString().split("T")[0]
+    );
+    const isDateInExisting = newAvailability.some((date) =>
+      existingDates.includes(date.toISOString().split("T")[0])
+    );
+    if (isDateInExisting) {
+      return res.status(400).json({
+        message: "You have already set availability for some dates",
+      });
+    }
+    const filteredAvailability = newAvailability.filter(
+      (date) =>
+        !existingDates.includes(date.toISOString().split("T")[0]) &&
+        date > new Date()
+    );
+    userData.availability = [...userData.availability, ...filteredAvailability];
+    await userData.save();
     res.status(200).json({
-      message: "Availability of the professor updated successfully",
-      availability: updatedUser.availability,
+      message: "Availability set successfully",
+      availability: userData.availability.map((date) => ({
+        date: date.toISOString().split("T")[0],
+        time: date.toTimeString().split(" ")[0],
+      })),
     });
   } catch (error) {
-    console.error("Error updating availability:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error setting availability:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -64,6 +86,7 @@ const getAvailability = async (req, res) => {
 
     res.status(200).json({
       message: "Availability fetched successfully",
+      id: userData._id,
       availability: formattedAvailibility,
     });
   } catch (error) {
@@ -119,6 +142,11 @@ const cancelAppointment = async (req, res) => {
       .status(403)
       .json({ message: "You can only cancel your own appointments" });
   }
+  if (appointment.status !== "confirmed") {
+    return res
+      .status(400)
+      .json({ message: "Appointment is already cancelled" });
+  }
 
   try {
     await Appointment.findByIdAndUpdate(
@@ -154,6 +182,7 @@ const profAppointments = async (req, res) => {
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: "You have no appointments" });
     }
+    appointments.sort((a, b) => b.timeSlot - a.timeSlot);
 
     res.status(200).json({
       message: "Appointments fetched successfully",
@@ -165,7 +194,11 @@ const profAppointments = async (req, res) => {
             name: appointment.student.name,
             email: appointment.student.email,
           },
-          timeSlot: appointment.timeSlot.toISOString(),
+          profId: appointment.professor._id,
+          timeSlot: {
+            date: appointment.timeSlot.toISOString().split("T")[0],
+            time: appointment.timeSlot.toTimeString().split(" ")[0],
+          },
           status: appointment.status,
         })),
       },

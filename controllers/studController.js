@@ -21,8 +21,6 @@ const checkAvailableSlots = async (req, res) => {
     const bookedSlots = appointments.map((appointment) =>
       appointment.timeSlot.toISOString()
     );
-
-    // Filter out the professor's availability slots that are already booked and if they are in the past
     const currentDate = new Date();
 
     const availableSlots = prof.availability.filter(
@@ -67,6 +65,13 @@ const bookAppointment = async (req, res) => {
     if (isNaN(timeSlot.getTime())) {
       return res.status(400).json({ message: "Invalid date or time format" });
     }
+    if (timeSlot < new Date()) {
+      return res.status(400).json({ message: "Cannot book in the past" });
+    }
+    if (!prof.availability.some((slot) => slot.getTime() === timeSlot.getTime())) {
+      return res.status(400).json({ message: "Time slot not available" });
+    }
+    
 
     const existingAppointment = await Appointment.findOne({
       professor: prof._id,
