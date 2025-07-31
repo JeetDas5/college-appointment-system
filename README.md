@@ -1,8 +1,7 @@
 # College Appointment System
 
+[![Tests](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml)
 [![CI/CD Pipeline](https://github.com/JeetDas5/college-appointment-system/actions/workflows/ci.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/ci.yml)
-[![Test Suite](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml)
-[![Deploy](https://github.com/JeetDas5/college-appointment-system/actions/workflows/deploy.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/deploy.yml)
 
 A web-based platform for managing appointments between students and faculty members. Built with **Node.js**, **Express**, and **MongoDB**.
 
@@ -40,24 +39,17 @@ A web-based platform for managing appointments between students and faculty memb
 
 ## CI/CD Pipeline
 
-This project includes a comprehensive GitHub Actions CI/CD pipeline with the following workflows:
+This project includes a simple and reliable GitHub Actions CI/CD pipeline:
 
-### 🔄 Continuous Integration
-- **Main CI/CD Pipeline** (`ci.yml`) - Runs tests, linting, security checks, and builds on push/PR
-- **Test Suite** (`test.yml`) - Comprehensive testing across multiple Node.js versions
-- **Pull Request Checks** (`pr-check.yml`) - Automated PR validation and comments
-- **Status Checks** (`status.yml`) - Regular health checks and dependency monitoring
+### 🔄 Workflows
+- **Tests** (`test.yml`) - Simple test execution on every push/PR
+- **CI/CD Pipeline** (`ci.yml`) - Comprehensive testing across Node.js versions with security audit
 
-### 🚀 Deployment
-- **Deploy Workflow** (`deploy.yml`) - Automated staging and production deployments
-- Staging deployment on successful main branch builds
-- Production deployment with manual approval
-- Automatic rollback on deployment failures
-
-### 📊 Test Coverage
+### 📊 Features
 - E2E test suite with MongoDB Memory Server
-- Multi-version Node.js compatibility testing (18.x, 20.x, 22.x)
-- Automated test result reporting and artifact uploads
+- Multi-version Node.js compatibility testing (18.x, 20.x)
+- Security vulnerability scanning
+- Automated test failure artifact collection
 
 ## Getting Started
 
