@@ -1,3 +1,4 @@
+const Appointment = require("../models/Appointment");
 const user = require("../models/User");
 
 const setAvailability = async (req, res) => {
@@ -47,9 +48,23 @@ const getAvailability = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    if (!userData.availability || userData.availability.length === 0) {
+      return res.status(404).json({
+        message: "You have not set any availability",
+        availability: [],
+      });
+    }
+
+    const formattedAvailibility = userData.availability.map((date) => {
+      return {
+        date: date.toISOString().split("T")[0],
+        time: date.toTimeString().split(" ")[0],
+      };
+    });
+
     res.status(200).json({
       message: "Availability fetched successfully",
-      availability: userData.availability,
+      availability: formattedAvailibility,
     });
   } catch (error) {
     console.error("Error fetching availability:", error);
@@ -57,7 +72,69 @@ const getAvailability = async (req, res) => {
   }
 };
 
+const getAppointments = async (req, res) => {
+  const role = req.user.role;
+
+  if (role !== "professor") {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  try {
+    const appointments = await Appointment.find({ professor: req.user._id })
+      .populate("student", "name email")
+      .sort({ date: -1 });
+
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({ message: "You have no appointments" });
+    }
+
+    res.status(200).json({
+      message: "Appointments fetched successfully",
+      appointments,
+    });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const cancelAppointment = async (req, res) => {
+  const role = req.user.role;
+
+  if (role !== "professor") {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  const { appointmentId } = req.params;
+
+  const appointment = await Appointment.findById(appointmentId);
+  if (!appointment) {
+    return res.status(404).json({ message: "Appointment not found" });
+  }
+  if (appointment.professor.toString() !== req.user._id.toString()) {
+    return res
+      .status(403)
+      .json({ message: "You can only cancel your own appointments" });
+  }
+
+  try {
+    await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { status: "cancelled" },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({ message: "Appointment cancelled successfully" }, appointment);
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 module.exports = {
   setAvailability,
   getAvailability,
+  getAppointments,
+  cancelAppointment,
 };
