@@ -52,10 +52,6 @@ const checkAvailableSlots = async (req, res) => {
 };
 
 const bookAppointment = async (req, res) => {
-  //   timeSlot: {
-  //     type: Date,
-  //     required: true,
-  //   },
   const role = req.user.role;
   if (role !== "student") {
     return res.status(403).json({ message: "Access denied" });
