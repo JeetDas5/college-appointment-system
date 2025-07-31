@@ -41,11 +41,11 @@ A web-based platform for managing appointments between students and faculty memb
 
 This project includes a simple and reliable GitHub Actions CI/CD pipeline:
 
-### 🔄 Workflows
+### Workflows
 - **Tests** (`test.yml`) - Simple test execution on every push/PR
 - **CI/CD Pipeline** (`ci.yml`) - Comprehensive testing across Node.js versions with security audit
 
-### 📊 Features
+### Features
 - E2E test suite with MongoDB Memory Server
 - Multi-version Node.js compatibility testing (18.x, 20.x)
 - Security vulnerability scanning
@@ -60,27 +60,27 @@ This project includes a simple and reliable GitHub Actions CI/CD pipeline:
 
 ### Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
    ```sh
    git clone <https://github.com/JeetDas5/college-appointment-system>
    cd college-appointment-system
    ```
-2. **Install dependencies:**
+2. Install dependencies:
    ```sh
    npm install
    ```
-3. **Configure environment variables:**
-   - Create a `.env` file in the root directory (see `.env.example` if available)
+3. Configure environment variables:
+   - Create a `.env` file in the root directory
    - Add the following:
      ```env
      MONGO_URI=your_mongodb_connection_string
      PORT=3000
      JWT_SECRET=your_jwt_secret
      ```
-4. **Start the server:**
+4. Start the server:
    ```sh
-   npm start          # Development with nodemon
-   npm run start:prod # Production mode
+   npm start
+   npm run start:prod
    ```
 
 ## Testing
@@ -88,9 +88,9 @@ This project includes a simple and reliable GitHub Actions CI/CD pipeline:
 Run the test suite locally:
 
 ```sh
-npm test              # Run all tests
-npm run test:watch    # Run tests in watch mode
-npm run test:coverage # Run tests with coverage report
+npm test
+npm run test:watch
+npm run test:coverage
 ```
 
 The test suite includes:
@@ -123,7 +123,7 @@ Authorization: Bearer <your_jwt_token>
   "name": "John Doe",
   "email": "john@example.com",
   "password": "password123",
-  "role": "student" // or "professor"
+  "role": "student"
 }
 ```
 **Sample Response:**
@@ -362,4 +362,4 @@ This project is licensed under the ISC License.
 
 ---
 
-Made with ❤️ by Jeet Das
+Made by Jeet Das

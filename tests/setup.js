@@ -1,8 +1,6 @@
-// Setup file for Jest tests
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 
-// Ensure JWT_SECRET is set for tests
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'testsecret';
 
 let mongoServer;
@@ -19,7 +17,6 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
-  // Clean up all collections after each test
   const collections = mongoose.connection.collections;
   for (const key in collections) {
     await collections[key].deleteMany();
