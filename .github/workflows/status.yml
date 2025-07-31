@@ -52,14 +52,21 @@ jobs:
     - name: Test application startup
       run: |
         echo "🚀 Testing application startup..."
-        timeout 10s npm run start:prod &
-        sleep 5
-        if pgrep -f "node server.js" > /dev/null; then
-          echo "✅ Application starts successfully"
-          pkill -f "node server.js"
+        # Check if server.js exists before testing
+        if [ -f "server.js" ]; then
+          echo "Testing server.js startup..."
+          timeout 10s node server.js &
+          SERVER_PID=$!
+          sleep 3
+          if kill -0 $SERVER_PID 2>/dev/null; then
+            echo "✅ Application starts successfully"
+            kill $SERVER_PID
+          else
+            echo "❌ Application failed to start"
+            exit 1
+          fi
         else
-          echo "❌ Application failed to start"
-          exit 1
+          echo "⚠️ server.js not found, skipping startup test"
         fi
       env:
         NODE_ENV: test

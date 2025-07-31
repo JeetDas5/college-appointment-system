@@ -31,24 +31,23 @@ jobs:
             echo "  - $file"
           done
           
-          # Basic YAML syntax validation
+          # Basic YAML syntax validation using yq
           for file in .github/workflows/*.yml .github/workflows/*.yaml; do
             if [ -f "$file" ]; then
               echo "🔍 Validating $file..."
-              # Use Python to validate YAML syntax
-              python3 -c "
-import yaml
-import sys
-try:
-    with open('$file', 'r') as f:
-        yaml.safe_load(f)
-    print('✅ $file is valid YAML')
-except yaml.YAMLError as e:
-    print('❌ $file has YAML syntax errors:', e)
-    sys.exit(1)
-except Exception as e:
-    print('⚠️ Could not validate $file:', e)
-"
+              # Install yq for YAML validation
+              if ! command -v yq &> /dev/null; then
+                sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+                sudo chmod +x /usr/local/bin/yq
+              fi
+              
+              # Validate YAML syntax
+              if yq eval '.' "$file" > /dev/null 2>&1; then
+                echo "✅ $file is valid YAML"
+              else
+                echo "❌ $file has YAML syntax errors"
+                exit 1
+              fi
             fi
           done
           
