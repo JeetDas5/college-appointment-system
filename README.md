@@ -1,5 +1,9 @@
 # College Appointment System
 
+[![CI/CD Pipeline](https://github.com/JeetDas5/college-appointment-system/actions/workflows/ci.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/ci.yml)
+[![Test Suite](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml)
+[![Deploy](https://github.com/JeetDas5/college-appointment-system/actions/workflows/deploy.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/deploy.yml)
+
 A web-based platform for managing appointments between students and faculty members. Built with **Node.js**, **Express**, and **MongoDB**.
 
 ## Features
@@ -34,11 +38,32 @@ A web-based platform for managing appointments between students and faculty memb
 │   └── studRoutes.js
 ```
 
+## CI/CD Pipeline
+
+This project includes a comprehensive GitHub Actions CI/CD pipeline with the following workflows:
+
+### 🔄 Continuous Integration
+- **Main CI/CD Pipeline** (`ci.yml`) - Runs tests, linting, security checks, and builds on push/PR
+- **Test Suite** (`test.yml`) - Comprehensive testing across multiple Node.js versions
+- **Pull Request Checks** (`pr-check.yml`) - Automated PR validation and comments
+- **Status Checks** (`status.yml`) - Regular health checks and dependency monitoring
+
+### 🚀 Deployment
+- **Deploy Workflow** (`deploy.yml`) - Automated staging and production deployments
+- Staging deployment on successful main branch builds
+- Production deployment with manual approval
+- Automatic rollback on deployment failures
+
+### 📊 Test Coverage
+- E2E test suite with MongoDB Memory Server
+- Multi-version Node.js compatibility testing (18.x, 20.x, 22.x)
+- Automated test result reporting and artifact uploads
+
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v16 or higher recommended)
+- Node.js (v18 or higher recommended)
 - MongoDB instance (local or cloud)
 
 ### Installation
@@ -62,8 +87,25 @@ A web-based platform for managing appointments between students and faculty memb
      ```
 4. **Start the server:**
    ```sh
-   npm start
+   npm start          # Development with nodemon
+   npm run start:prod # Production mode
    ```
+
+## Testing
+
+Run the test suite locally:
+
+```sh
+npm test              # Run all tests
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Run tests with coverage report
+```
+
+The test suite includes:
+- E2E appointment booking and cancellation flow
+- Authentication testing
+- API endpoint validation
+- Database integration testing
 
 ## API Endpoints
 

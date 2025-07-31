@@ -1,0 +1,108 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Wait for MongoDB
+      run: |
+        until mongosh --eval "print('MongoDB is ready')" > /dev/null 2>&1; do
+          echo "Waiting for MongoDB..."
+          sleep 2
+        done
+    
+    - name: Run E2E tests
+      run: npm test
+      env:
+        NODE_ENV: test
+        JWT_SECRET: test-jwt-secret-key-for-github-actions
+        MONGO_URI: mongodb://localhost:27017/college-appointment-test
+    
+    - name: Generate test report
+      if: always()
+      run: |
+        echo "Test completed for Node.js ${{ matrix.node-version }}"
+        echo "Exit code: $?"
+    
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: test-failure-logs-node-${{ matrix.node-version }}
+        path: |
+          npm-debug.log*
+          yarn-debug.log*
+          yarn-error.log*
+        retention-days: 7
+
+  test-coverage:
+    name: Test Coverage
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests with coverage
+      run: |
+        if npm run test:coverage --silent 2>/dev/null; then
+          npm run test:coverage
+        else
+          echo "No coverage script found, running regular tests..."
+          npm test
+        fi
+      env:
+        NODE_ENV: test
+        JWT_SECRET: test-jwt-secret-key-for-coverage
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report
+        path: coverage/
+        retention-days: 30

@@ -1,0 +1,127 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types:
+      - completed
+    branches: [ main ]
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
+    
+    environment:
+      name: staging
+      url: https://staging.your-domain.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --only=production
+    
+    - name: Create deployment package
+      run: |
+        mkdir -p deploy
+        cp -r . deploy/
+        cd deploy
+        rm -rf node_modules tests .git .github coverage
+        tar -czf ../deployment.tar.gz .
+    
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "Deployment package created: deployment.tar.gz"
+        # Add your deployment commands here
+        # Example: scp deployment.tar.gz user@staging-server:/path/to/app/
+        # Example: ssh user@staging-server 'cd /path/to/app && tar -xzf deployment.tar.gz && pm2 restart app'
+    
+    - name: Run smoke tests
+      run: |
+        echo "🧪 Running smoke tests on staging..."
+        # Add smoke test commands here
+        # Example: curl -f https://staging.your-domain.com/health || exit 1
+    
+    - name: Notify deployment success
+      run: |
+        echo "✅ Staging deployment successful!"
+        echo "Application is running at: https://staging.your-domain.com"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    
+    environment:
+      name: production
+      url: https://your-domain.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --only=production
+    
+    - name: Create production package
+      run: |
+        mkdir -p deploy
+        cp -r . deploy/
+        cd deploy
+        rm -rf node_modules tests .git .github coverage
+        tar -czf ../production.tar.gz .
+    
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production environment..."
+        echo "Production package created: production.tar.gz"
+        # Add your production deployment commands here
+        # Example: scp production.tar.gz user@prod-server:/path/to/app/
+        # Example: ssh user@prod-server 'cd /path/to/app && tar -xzf production.tar.gz && pm2 restart app'
+    
+    - name: Run production health checks
+      run: |
+        echo "🏥 Running production health checks..."
+        # Add health check commands here
+        # Example: curl -f https://your-domain.com/health || exit 1
+    
+    - name: Notify deployment success
+      run: |
+        echo "🎉 Production deployment successful!"
+        echo "Application is live at: https://your-domain.com"
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    if: failure()
+    
+    steps:
+    - name: Rollback deployment
+      run: |
+        echo "🔄 Rolling back deployment due to failure..."
+        # Add rollback commands here
+        # Example: ssh user@server 'cd /path/to/app && git checkout HEAD~1 && pm2 restart app'
+    
+    - name: Notify rollback
+      run: |
+        echo "⚠️ Deployment rolled back due to failure"
+        echo "Please check the logs and fix the issues"

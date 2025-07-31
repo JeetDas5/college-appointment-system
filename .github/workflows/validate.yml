@@ -1,0 +1,93 @@
+name: Validate Workflows
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  validate-workflows:
+    name: Validate GitHub Actions Workflows
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Validate workflow syntax
+      run: |
+        echo "🔍 Validating GitHub Actions workflow files..."
+        
+        # Check if workflow files exist
+        if [ -d ".github/workflows" ]; then
+          echo "✅ Workflows directory exists"
+          
+          # List all workflow files
+          echo "📋 Found workflow files:"
+          find .github/workflows -name "*.yml" -o -name "*.yaml" | while read file; do
+            echo "  - $file"
+          done
+          
+          # Basic YAML syntax validation
+          for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [ -f "$file" ]; then
+              echo "🔍 Validating $file..."
+              # Use Python to validate YAML syntax
+              python3 -c "
+import yaml
+import sys
+try:
+    with open('$file', 'r') as f:
+        yaml.safe_load(f)
+    print('✅ $file is valid YAML')
+except yaml.YAMLError as e:
+    print('❌ $file has YAML syntax errors:', e)
+    sys.exit(1)
+except Exception as e:
+    print('⚠️ Could not validate $file:', e)
+"
+            fi
+          done
+          
+          echo "✅ All workflow files validated successfully"
+        else
+          echo "❌ No workflows directory found"
+          exit 1
+        fi
+    
+    - name: Check workflow best practices
+      run: |
+        echo "📋 Checking workflow best practices..."
+        
+        # Check for required elements
+        for file in .github/workflows/*.yml; do
+          if [ -f "$file" ]; then
+            echo "🔍 Checking $file for best practices..."
+            
+            # Check for name field
+            if grep -q "^name:" "$file"; then
+              echo "  ✅ Has name field"
+            else
+              echo "  ⚠️ Missing name field"
+            fi
+            
+            # Check for on field
+            if grep -q "^on:" "$file"; then
+              echo "  ✅ Has trigger conditions"
+            else
+              echo "  ❌ Missing trigger conditions"
+            fi
+            
+            # Check for jobs field
+            if grep -q "^jobs:" "$file"; then
+              echo "  ✅ Has jobs defined"
+            else
+              echo "  ❌ Missing jobs"
+            fi
+          fi
+        done
+        
+        echo "✅ Best practices check completed"

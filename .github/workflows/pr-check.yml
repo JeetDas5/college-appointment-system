@@ -1,0 +1,104 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-tests:
+    name: PR Test Suite
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout PR code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm test
+      env:
+        NODE_ENV: test
+        JWT_SECRET: pr-test-jwt-secret
+    
+    - name: Comment PR on success
+      if: success()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '✅ All tests passed! This PR is ready for review. 🚀'
+          })
+    
+    - name: Comment PR on failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '❌ Tests failed! Please fix the failing tests before merging. 🔧'
+          })
+
+  pr-quality-checks:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout PR code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Check for security vulnerabilities
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+    
+    - name: Check package.json format
+      run: |
+        if ! npm run lint --silent 2>/dev/null; then
+          echo "No lint script found, checking basic syntax..."
+          node -c app.js
+          node -c server.js || echo "server.js not found, skipping..."
+        else
+          npm run lint
+        fi
+      continue-on-error: true
+    
+    - name: Validate test files
+      run: |
+        echo "Checking test files..."
+        if [ -d "tests" ]; then
+          echo "✅ Tests directory exists"
+          if [ -f "tests/flow.test.js" ]; then
+            echo "✅ E2E test file exists"
+          else
+            echo "⚠️ E2E test file missing"
+          fi
+        else
+          echo "⚠️ Tests directory missing"
+        fi
