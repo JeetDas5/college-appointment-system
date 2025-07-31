@@ -105,7 +105,10 @@ const cancelAppointment = async (req, res) => {
     return res.status(403).json({ message: "Access denied" });
   }
 
-  const { appointmentId } = req.params;
+  const { appointmentId } = req.body;
+  if (!appointmentId) {
+    return res.status(400).json({ message: "Appointment ID is required" });
+  }
 
   const appointment = await Appointment.findById(appointmentId);
   if (!appointment) {
@@ -132,9 +135,51 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+const profAppointments = async (req, res) => {
+  const role = req.user.role;
+
+  if (role !== "professor") {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  try {
+    const appointments = await Appointment.find({
+      professor: req.user._id,
+      status: "confirmed",
+      timeSlot: { $gte: new Date() },
+    })
+      .populate("student", "name email")
+      .sort({ date: -1 });
+
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({ message: "You have no appointments" });
+    }
+
+    res.status(200).json({
+      message: "Appointments fetched successfully",
+      appointments: {
+        appointments: appointments.map((appointment) => ({
+          id: appointment._id,
+          student: {
+            id: appointment.student._id,
+            name: appointment.student.name,
+            email: appointment.student.email,
+          },
+          timeSlot: appointment.timeSlot.toISOString(),
+          status: appointment.status,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   setAvailability,
   getAvailability,
   getAppointments,
   cancelAppointment,
+  profAppointments,
 };

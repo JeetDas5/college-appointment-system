@@ -3,7 +3,8 @@ const {
   setAvailability,
   getAvailability,
   cancelAppointment,
-  getAppointments
+  getAppointments,
+  profAppointments,
 } = require("../controllers/profController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
@@ -13,5 +14,6 @@ router.post("/set-availability", authMiddleware, setAvailability);
 router.get("/get-availability", authMiddleware, getAvailability);
 router.post("/cancel-appointment", authMiddleware, cancelAppointment);
 router.get("/get-appointments", authMiddleware, getAppointments);
+router.get("/my-appointments", authMiddleware, profAppointments);
 
 module.exports = router;
