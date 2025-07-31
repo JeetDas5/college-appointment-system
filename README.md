@@ -130,16 +130,22 @@ Authorization: Bearer <your_jwt_token>
 **Sample Body:**
 ```json
 {
-  "slots": [
-    { "date": "2025-08-01", "start": "10:00", "end": "11:00" },
-    { "date": "2025-08-01", "start": "11:00", "end": "12:00" }
+  "availability": [
+    "2025-08-01T10:00:00.000Z",
+    "2025-08-01T11:00:00.000Z",
+    "2025-08-01T14:00:00.000Z"
   ]
 }
 ```
 **Sample Response:**
 ```json
 {
-  "message": "Availability set successfully"
+  "message": "Availability of the professor updated successfully",
+  "availability": [
+    "2025-08-01T10:00:00.000Z",
+    "2025-08-01T11:00:00.000Z",
+    "2025-08-01T14:00:00.000Z"
+  ]
 }
 ```
 
@@ -149,8 +155,11 @@ Authorization: Bearer <your_jwt_token>
 **Sample Response:**
 ```json
 {
+  "message": "Availability fetched successfully",
   "availability": [
-    { "date": "2025-08-01", "start": "10:00", "end": "11:00" }
+    { "date": "2025-08-01", "time": "10:00:00" },
+    { "date": "2025-08-01", "time": "11:00:00" },
+    { "date": "2025-08-01", "time": "14:00:00" }
   ]
 }
 ```
@@ -161,13 +170,20 @@ Authorization: Bearer <your_jwt_token>
 **Sample Response:**
 ```json
 {
+  "message": "Appointments fetched successfully",
   "appointments": [
     {
-      "student": "Jane Smith",
-      "date": "2025-08-01",
-      "start": "10:00",
-      "end": "11:00",
-      "status": "confirmed"
+      "_id": "appointment_id",
+      "student": {
+        "_id": "student_id",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      },
+      "professor": "professor_id",
+      "timeSlot": "2025-08-01T10:00:00.000Z",
+      "status": "confirmed",
+      "createdAt": "2025-07-31T15:30:00.000Z",
+      "updatedAt": "2025-07-31T15:30:00.000Z"
     }
   ]
 }
@@ -185,7 +201,7 @@ Authorization: Bearer <your_jwt_token>
 **Sample Response:**
 ```json
 {
-  "message": "Appointment cancelled"
+  "message": "Appointment cancelled successfully"
 }
 ```
 
@@ -195,15 +211,21 @@ Authorization: Bearer <your_jwt_token>
 **Sample Response:**
 ```json
 {
-  "appointments": [
-    {
-      "student": "Jane Smith",
-      "date": "2025-08-01",
-      "start": "10:00",
-      "end": "11:00",
-      "status": "confirmed"
-    }
-  ]
+  "message": "Appointments fetched successfully",
+  "appointments": {
+    "appointments": [
+      {
+        "id": "appointment_id",
+        "student": {
+          "id": "student_id",
+          "name": "Jane Smith",
+          "email": "jane@example.com"
+        },
+        "timeSlot": "2025-08-01T10:00:00.000Z",
+        "status": "confirmed"
+      }
+    ]
+  }
 }
 ```
 
@@ -215,8 +237,16 @@ Authorization: Bearer <your_jwt_token>
 **Sample Response:**
 ```json
 {
-  "slots": [
-    { "date": "2025-08-01", "start": "10:00", "end": "11:00" }
+  "message": "Available slots fetched successfully",
+  "professor": {
+    "id": "professor_id",
+    "name": "Professor P1",
+    "email": "professor@example.com"
+  },
+  "availableSlots": [
+    { "date": "2025-08-01", "time": "10:00:00" },
+    { "date": "2025-08-01", "time": "11:00:00" },
+    { "date": "2025-08-01", "time": "14:00:00" }
   ]
 }
 ```
@@ -229,14 +259,27 @@ Authorization: Bearer <your_jwt_token>
 {
   "profId": "<professor_id>",
   "date": "2025-08-01",
-  "start": "10:00",
-  "end": "11:00"
+  "time": "10:00:00"
 }
 ```
 **Sample Response:**
 ```json
 {
-  "message": "Appointment booked successfully"
+  "message": "Appointment booked successfully",
+  "appointment": {
+    "id": "appointment_id",
+    "student": {
+      "id": "student_id",
+      "name": "Student Name",
+      "email": "student@example.com"
+    },
+    "professor": {
+      "id": "professor_id",
+      "name": "Professor Name",
+      "email": "professor@example.com"
+    },
+    "timeSlot": "2025-08-01T10:00:00.000Z"
+  }
 }
 ```
 
@@ -246,13 +289,24 @@ Authorization: Bearer <your_jwt_token>
 **Sample Response:**
 ```json
 {
+  "message": "Appointments fetched successfully",
   "appointments": [
     {
-      "professor": "Dr. Smith",
-      "date": "2025-08-01",
-      "start": "10:00",
-      "end": "11:00",
-      "status": "confirmed"
+      "_id": "appointment_id",
+      "student": {
+        "_id": "student_id",
+        "name": "Student Name",
+        "email": "student@example.com"
+      },
+      "professor": {
+        "_id": "professor_id",
+        "name": "Professor Name",
+        "email": "professor@example.com"
+      },
+      "timeSlot": "2025-08-01T10:00:00.000Z",
+      "status": "confirmed",
+      "createdAt": "2025-07-31T15:30:00.000Z",
+      "updatedAt": "2025-07-31T15:30:00.000Z"
     }
   ]
 }
