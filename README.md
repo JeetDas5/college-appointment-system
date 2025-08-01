@@ -1,8 +1,5 @@
 # College Appointment System
 
-[![Tests](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/test.yml)
-[![CI/CD Pipeline](https://github.com/JeetDas5/college-appointment-system/actions/workflows/ci.yml/badge.svg)](https://github.com/JeetDas5/college-appointment-system/actions/workflows/ci.yml)
-
 A web-based platform for managing appointments between students and faculty members. Built with **Node.js**, **Express**, and **MongoDB**.
 
 ## Features
