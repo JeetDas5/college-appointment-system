@@ -34,14 +34,6 @@ A web-based platform for managing appointments between students and faculty memb
 │   └── studRoutes.js
 ```
 
-## CI/CD Pipeline
-
-This project includes a simple and reliable GitHub Actions CI/CD pipeline:
-
-### Workflows
-- **Tests** (`test.yml`) - Simple test execution on every push/PR
-- **CI/CD Pipeline** (`ci.yml`) - Comprehensive testing across Node.js versions with security audit
-
 ### Features
 - E2E test suite with MongoDB Memory Server
 - Multi-version Node.js compatibility testing (18.x, 20.x)
@@ -52,14 +44,14 @@ This project includes a simple and reliable GitHub Actions CI/CD pipeline:
 
 ### Prerequisites
 
-- Node.js (v18 or higher recommended)
-- MongoDB instance (local or cloud)
+- Node.js
+- MongoDB instance
 
 ### Installation
 
 1. Clone the repository:
    ```sh
-   git clone <https://github.com/JeetDas5/college-appointment-system>
+   git clone https://github.com/JeetDas5/college-appointment-system
    cd college-appointment-system
    ```
 2. Install dependencies:
@@ -76,25 +68,9 @@ This project includes a simple and reliable GitHub Actions CI/CD pipeline:
      ```
 4. Start the server:
    ```sh
-   npm start
-   npm run start:prod
+   npm run start
    ```
 
-## Testing
-
-Run the test suite locally:
-
-```sh
-npm test
-npm run test:watch
-npm run test:coverage
-```
-
-The test suite includes:
-- E2E appointment booking and cancellation flow
-- Authentication testing
-- API endpoint validation
-- Database integration testing
 
 ## API Endpoints
 
